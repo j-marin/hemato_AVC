@@ -250,7 +250,19 @@ final_KaKs <- function(df) {
     
     out_df$seq_1[i] <- curr_df$seq_1[1]
     out_df$seq_2[i] <- curr_df$seq_2[1]
-    out_df$KaKs[i] <-  sum(curr_df$Ka) / sum(curr_df$Ks)
+    
+    # remove 0/0 --> NaN
+    if (sum(curr_df$Ka) == 0 & sum(curr_df$Ks) == 0) {
+    	out_df$KaKs[i] <- NA}
+    
+    # Laplace smooting when ka > 0 and ks = 1
+    else if (sum(curr_df$Ka) > 0 & sum(curr_df$Ks) == 0) {
+    	z <- sd(1/curr_df$S[curr_df$S>0]/curr_df$count[curr_df$S>0])
+		out_df$KaKs[i] <-  (sum(curr_df$Ka) + 1*z) / (1*z)
+    
+    } else {out_df$KaKs[i] <-  sum(curr_df$Ka) / sum(curr_df$Ks)}
+    
+    
   }
   return(out_df)
 }
